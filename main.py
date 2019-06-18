@@ -5,7 +5,7 @@ import pandas as pd
 from matplotlib import pyplot as plt
 import requests
 import json
-from charts import get_price
+from charts import get_chart_info
 
 base_url = "https://sandbox.iexapis.com/stable/stock/"
 token = "?token=Tpk_b0410fc3685c4561980063dfcb5279a7"
@@ -35,10 +35,6 @@ class Stock_shot:
         industry = response_json['industry']
         print(company_name, exchange, industry)
 
-    # Returns historical price information based on user inputted date range
-
-
-
 def search_stock():
     stock_string = input('Enter a stock ticker, or multiple tickers separated by a ",": ').upper()
     stock_lst = stock_string.replace(" ", "").split(",")
@@ -48,7 +44,7 @@ def search_stock():
         single_stock.get_quote(stock)
         single_stock.get_peers(stock)
         single_stock.get_company(stock)
-    get_price(stock_lst)
+    get_chart_info(stock_lst)
 
 
 search_stock()
