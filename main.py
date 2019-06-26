@@ -44,7 +44,7 @@ def search_stock():
     for stock in stock_lst:
         single_stock = Stock_shot(stock)
         single_stock.get_quote(stock)
-        peers = single_stock.get_peers(stock)
+        single_stock.get_peers(stock)
         single_stock.get_company(stock)
     peers = requests.get(base_url + stock_string + '/peers' + token)
     peers_json = json.loads(peers.text)
