@@ -6,8 +6,8 @@ import datetime
 import requests
 import json
 
-base_url = "https://sandbox.iexapis.com/stable/stock/"
-token = "?token=Tpk_b0410fc3685c4561980063dfcb5279a7"
+base_url = "https://cloud.iexapis.com/stable/stock/"
+token = "?token=pk_44bd5242c4ab4595b33dafa82c61ba1c"
 
 months = {1: "Jan", 2: "Feb", 3: "Mar", 4: "Apr", 5: "May", 6: "Jun", 7: "Jul", 8: "Aug", 9: "Sep", 10: "Oct", 11: "Nov", 12: "Dec"}
 

@@ -1,8 +1,6 @@
 #“Data provided by IEX Cloud”
 #<a href="https://iexcloud.io">Data provided by IEX Cloud</a>
 
-import pandas as pd
-from matplotlib import pyplot as plt
 import requests
 import json
 from charts import get_chart_info
