@@ -5,6 +5,7 @@ from matplotlib import pyplot as plt
 import datetime
 import requests
 import json
+from calculations import get_stats
 
 base_url = "https://cloud.iexapis.com/stable/stock/"
 token = "?token=pk_44bd5242c4ab4595b33dafa82c61ba1c"
@@ -59,7 +60,7 @@ def get_x_and_y_values():
         plt.plot(x_values[index], y_values[index])
         print("Return During Period: {}% for {}".format(returns_per_range[index], companies[index]))
 
-chart_range = ""
+chart_range = ''
 companies = []
 x_values = []
 y_values = []
@@ -68,9 +69,21 @@ months_labels = []
 five_year_labels = []
 returns_per_range = []
 
+def get_input():
+    chart_range = input("Would you like to see 1m, 3m, 6m, ytd, 1y, 2y, or 5y of data?:  ")
+    if chart_range != ('1m') and chart_range != ('3m') and chart_range != ('6m') and chart_range != ('ytd') \
+            and chart_range != ('1y') and chart_range != ('2y') and chart_range != ('5y'):
+        print("Please enter options exactly.")
+        get_input()
+    else:
+        return chart_range
+
+
 # Returns historical price information based on user inputted date range
 def get_chart_info(stocks):
-    chart_range = input("Would you like to see 1m, 3m, 6m, ytd, 1y, 2y, or 5y of data?:  ")
+    chart_range = get_input()
+        #input("Would you like to see 1m, 3m, 6m, ytd, 1y, 2y, or 5y of data?:  ")
+
     stock_lst_for_legend = stocks
 
     for stock in stock_lst_for_legend:
@@ -104,7 +117,11 @@ def get_chart_info(stocks):
             print(e)
             print("Make sure to enter values exactly as stated in question (no spaces).")
 
+        get_stats(stock)
+
     get_chart(chart_range)
+
+
 
 ##########1y, 2y, 5y won't step through ticks and/or ticklabels############
 
@@ -119,7 +136,7 @@ def get_chart(chart_range):
         ax.legend(companies)
         plt.show()
 
-    elif chart_range == ("3m") or ("6m") or ("ytd"):
+    elif chart_range == ("3m") or chart_range == ("6m") or chart_range == ("ytd"):
         ax = plt.subplot()
         for index, value in enumerate(companies):
             plt.plot(x_values[index], y_values[index])
@@ -163,4 +180,3 @@ def get_chart(chart_range):
 
     else:
         print("Error in retrieving chart. Please try again.")
-
