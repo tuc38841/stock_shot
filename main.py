@@ -6,10 +6,12 @@ import json
 from charts import get_chart_info
 
 base_url = "https://cloud.iexapis.com/stable/stock/"
+test_base_url = "https://sandbox.iexapis.com/stable/stock/"
 token = "?token=pk_44bd5242c4ab4595b33dafa82c61ba1c"
+test_token = "?token=Tpk_b0410fc3685c4561980063dfcb5279a7"
 
 def get_response(stock, url_string):
-    response = requests.get(base_url + stock + url_string + token)
+    response = requests.get(test_base_url + stock + url_string + test_token)
     response_json = json.loads(response.text)
     return response_json
 
@@ -26,6 +28,7 @@ class Stock_shot:
     def get_peers(self, stock):
         response_json = get_response(stock, '/peers')
         print(response_json)
+        return response_json
 
     # Returns company name, exchange listed, and industry
     def get_name(self, stock):
@@ -42,11 +45,11 @@ def search_stock():
     for stock in stock_lst:
         single_stock = Stock_shot(stock)
         single_stock.get_quote(stock)
-        single_stock.get_peers(stock)
+        #single_stock.get_peers(stock)
         single_stock.get_name(stock)
-    peers = requests.get(base_url + stock_string + '/peers' + token)
-    peers_json = json.loads(peers.text)
-    stock_plus_peers = stock_lst + peers_json
+   # peers = requests.get(base_url + stock_string + '/peers' + token)
+   # peers_json = json.loads(peers.text)
+    stock_plus_peers = stock_lst #+ peers_json
     print(stock_plus_peers)
     get_chart_info(stock_plus_peers)
 

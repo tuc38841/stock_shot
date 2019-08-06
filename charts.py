@@ -8,7 +8,10 @@ import json
 from calculations import get_stats
 
 base_url = "https://cloud.iexapis.com/stable/stock/"
+test_base_url = "https://sandbox.iexapis.com/stable/stock/"
 token = "?token=pk_44bd5242c4ab4595b33dafa82c61ba1c"
+test_token = "?token=Tpk_b0410fc3685c4561980063dfcb5279a7"
+
 
 months = {1: "Jan", 2: "Feb", 3: "Mar", 4: "Apr", 5: "May", 6: "Jun", 7: "Jul", 8: "Aug", 9: "Sep", 10: "Oct", 11: "Nov", 12: "Dec"}
 
@@ -69,6 +72,7 @@ months_labels = []
 five_year_labels = []
 returns_per_range = []
 
+# Recursive fx for proper input
 def get_input():
     chart_range = input("Would you like to see 1m, 3m, 6m, ytd, 1y, 2y, or 5y of data?:  ")
     if chart_range != ('1m') and chart_range != ('3m') and chart_range != ('6m') and chart_range != ('ytd') \
@@ -89,7 +93,7 @@ def get_chart_info(stocks):
     for stock in stock_lst_for_legend:
         companies.append(stock)
         try:
-            response = requests.get(base_url + stock + '/chart/' + chart_range + token)
+            response = requests.get(test_base_url + stock + '/chart/' + chart_range + test_token)
             response_json = json.loads(response.text)
 
             year_mon_day = [i['date'] for i in response_json]
@@ -117,13 +121,11 @@ def get_chart_info(stocks):
             print(e)
             print("Make sure to enter values exactly as stated in question (no spaces).")
 
-        get_stats(stock)
+        #get_stats(stock) -> now only for paid subscribers
 
     get_chart(chart_range)
 
-
-
-##########1y, 2y, 5y won't step through ticks and/or ticklabels############
+## NEED WAY TO CAP FOR COMPANIES MISSING DATA (EX. square under 5 years data) -> If not enough data, then use max?? ##
 
 def get_chart(chart_range):
     if chart_range == '1m':
@@ -161,12 +163,12 @@ def get_chart(chart_range):
         for index, value in enumerate(companies):
             plt.plot(x_values[index], y_values[index])
             print("Return During Period: {}% for {}".format(returns_per_range[index], companies[index]))
-        ax.set_xticks(get_tick_index(months_labels[index]))[::6]
-        ax.set_xticklabels(get_month_labels(months_labels[index]))[::6]
+        ax.set_xticks(get_tick_index(months_labels[index])[::6])
+        ax.set_xticklabels(get_month_labels(months_labels[index])[::6])
         ax.legend(companies)
         plt.show()
-        print(get_tick_index(months_labels[index]))[::6]
-        print((get_month_labels(months_labels[index])))[::6]
+       # print(get_tick_index(months_labels[index]))[::6] #-> ERROR: 'NONETYPE OBJECT IS NOT SUBSCRIPTABLE'
+       # print((get_month_labels(months_labels[index])))[::6]
 
     elif chart_range == "5y":
         ax = plt.subplot()
@@ -180,3 +182,5 @@ def get_chart(chart_range):
 
     else:
         print("Error in retrieving chart. Please try again.")
+        ## chart max if error (from not having enough data - causing error) -> put in try block (if failure,
+        # then user input is out of range of existing data

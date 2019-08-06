@@ -7,10 +7,12 @@ import json
 from requests import Response
 
 base_url = "https://cloud.iexapis.com/stable/stock/"
+test_base_url = "https://sandbox.iexapis.com/stable/stock/"
 token = "?token=pk_44bd5242c4ab4595b33dafa82c61ba1c"
+test_token = "?token=Tpk_b0410fc3685c4561980063dfcb5279a7"
 
 def get_response(stock, url_string):
-    response = requests.get(base_url + stock + url_string + token)
+    response = requests.get(test_base_url + stock + url_string + test_token)
     response_json = json.loads(response.text)
     return response_json
 
@@ -34,7 +36,7 @@ def get_pe_ratio(stock):
     close_value = response_json['close']
     #print(close_value)
 
-    response = requests.get(base_url + stock + '/stats/ttmEPS' + token)
+    response = requests.get(test_base_url + stock + '/stats/ttmEPS' + test_token)
     actual_EPS = json.loads(response.text)
     #print(actual_EPS)
 
@@ -88,7 +90,7 @@ def get_stats(stock):
     book_value_per_share = round(response_json['balancesheet'][0]['shareholderEquity'] / \
                            response_json['balancesheet'][0]['commonStock'], 2)
     print("Book Value per Share: ", book_value_per_share)
-    response_pe = requests.get(base_url + stock + '/quote' + token)
+    response_pe = requests.get(test_base_url + stock + '/quote' + test_token)
     response_pe_json = json.loads(response_pe.text)
     current_price = response_pe_json['close']
 
