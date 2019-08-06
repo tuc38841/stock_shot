@@ -40,7 +40,7 @@ class Stock_shot:
 
 def search_stock():
     stock_string = input("Enter a company's stock ticker (ex. apple = aapl): ").upper()
-    stock_lst = stock_string.replace(" ", "").split()
+    stock_lst = stock_string.replace(",", " ").split()
     print(stock_lst)
     for stock in stock_lst:
         single_stock = Stock_shot(stock)

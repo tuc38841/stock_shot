@@ -128,37 +128,63 @@ def get_chart_info(stocks):
 ## NEED WAY TO CAP FOR COMPANIES MISSING DATA (EX. square under 5 years data) -> If not enough data, then use max?? ##
 
 def get_chart(chart_range):
-    if chart_range == '1m':
-        ax = plt.subplot()
-        for index, value in enumerate(companies):
-            plt.plot(x_values[index], y_values[index])
-            print("Return During Period: {}% for {}".format(returns_per_range[index], companies[index]))
-        ax.set_xticks(x_values[index])
-        ax.set_xticklabels(month_day_values[index])
-        ax.legend(companies)
-        plt.show()
+    try:
+        if chart_range == '1m':
+            ax = plt.subplot()
+            for index, value in enumerate(companies):
+                plt.plot(x_values[index], y_values[index])
+                print("Return During Period: {}% for {}".format(returns_per_range[index], companies[index]))
+            ax.set_xticks(x_values[index])
+            ax.set_xticklabels(month_day_values[index])
+            ax.legend(companies)
+            plt.show()
 
-    elif chart_range == ("3m") or chart_range == ("6m") or chart_range == ("ytd"):
-        ax = plt.subplot()
-        for index, value in enumerate(companies):
-            plt.plot(x_values[index], y_values[index])
-            print("Return During Period: {}% for {}".format(returns_per_range[index], companies[index]))
-        ax.set_xticks(get_tick_index(months_labels[index]))
-        ax.set_xticklabels(get_month_labels(months_labels[index]))
-        ax.legend(companies)
-        plt.show()
+        elif chart_range == ("3m") or chart_range == ("6m") or chart_range == ("ytd"):
+            ax = plt.subplot()
+            for index, value in enumerate(companies):
+                plt.plot(x_values[index], y_values[index])
+                print("Return During Period: {}% for {}".format(returns_per_range[index], companies[index]))
+            ax.set_xticks(get_tick_index(months_labels[index]))
+            ax.set_xticklabels(get_month_labels(months_labels[index]))
+            ax.legend(companies)
+            plt.show()
 
-    elif chart_range == "1y":
-        ax = plt.subplot()
-        for index, value in enumerate(companies):
-            plt.plot(x_values[index], y_values[index])
-            print("Return During Period: {}% for {}".format(returns_per_range[index], companies[index]))
-        ax.set_xticks(get_tick_index(months_labels[index])[::3])
-        ax.set_xticklabels(get_month_labels(months_labels[index])[::3])
-        ax.legend(companies)
-        plt.show()
+        elif chart_range == "1y":
+            ax = plt.subplot()
+            for index, value in enumerate(companies):
+                plt.plot(x_values[index], y_values[index])
+                print("Return During Period: {}% for {}".format(returns_per_range[index], companies[index]))
+            ax.set_xticks(get_tick_index(months_labels[index])[::3])
+            ax.set_xticklabels(get_month_labels(months_labels[index])[::3])
+            ax.legend(companies)
+            plt.show()
 
-    elif chart_range == "2y":
+        elif chart_range == "2y":
+            ax = plt.subplot()
+            for index, value in enumerate(companies):
+                plt.plot(x_values[index], y_values[index])
+                print("Return During Period: {}% for {}".format(returns_per_range[index], companies[index]))
+            ax.set_xticks(get_tick_index(months_labels[index])[::6])
+            ax.set_xticklabels(get_month_labels(months_labels[index])[::6])
+            ax.legend(companies)
+            plt.show()
+           # print(get_tick_index(months_labels[index]))[::6] #-> ERROR: 'NONETYPE OBJECT IS NOT SUBSCRIPTABLE'
+           # print((get_month_labels(months_labels[index])))[::6]
+
+        elif chart_range == "5y":
+            ax = plt.subplot()
+            for index, value in enumerate(companies):
+                plt.plot(x_values[index], y_values[index])
+                print("Return During Period: {}% for {}".format(returns_per_range[index], companies[index]))
+            ax.set_xticks(get_5y_ticks(five_year_labels[index]))
+            ax.set_xticklabels(get_5y_labels(five_year_labels[index]))
+            ax.legend(companies)
+            plt.show()
+
+        else:
+            print("Error in retrieving chart. Please try again.")
+    except Exception as e:
+        raise e('Company does not have enough data to graph given time frame. Returning maximum data.')
         ax = plt.subplot()
         for index, value in enumerate(companies):
             plt.plot(x_values[index], y_values[index])
@@ -167,20 +193,5 @@ def get_chart(chart_range):
         ax.set_xticklabels(get_month_labels(months_labels[index])[::6])
         ax.legend(companies)
         plt.show()
-       # print(get_tick_index(months_labels[index]))[::6] #-> ERROR: 'NONETYPE OBJECT IS NOT SUBSCRIPTABLE'
-       # print((get_month_labels(months_labels[index])))[::6]
-
-    elif chart_range == "5y":
-        ax = plt.subplot()
-        for index, value in enumerate(companies):
-            plt.plot(x_values[index], y_values[index])
-            print("Return During Period: {}% for {}".format(returns_per_range[index], companies[index]))
-        ax.set_xticks(get_5y_ticks(five_year_labels[index]))
-        ax.set_xticklabels(get_5y_labels(five_year_labels[index]))
-        ax.legend(companies)
-        plt.show()
-
-    else:
-        print("Error in retrieving chart. Please try again.")
         ## chart max if error (from not having enough data - causing error) -> put in try block (if failure,
         # then user input is out of range of existing data

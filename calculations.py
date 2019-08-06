@@ -33,7 +33,7 @@ def get_price_target(stock):
 #Gets PE Ratio
 def get_pe_ratio(stock):
     response_json = get_response(stock, '/quote')
-    close_value = response_json['close']
+    close_value = float(int(response_json['close']))
     #print(close_value)
 
     response = requests.get(test_base_url + stock + '/stats/ttmEPS' + test_token)
@@ -61,6 +61,7 @@ def get_net_income(stock):
 def get_stats(stock):
     response_json = get_response(stock, '/balance-sheet')
     get_company(stock)
+    get_financials(stock)
     get_pe_ratio(stock)
 
     # Current Ratio
@@ -78,7 +79,7 @@ def get_stats(stock):
     print("Debt to Equity Ratio: ", debt_to_equity)
 
     # Return on Equity
-    # net income / shareholder's equity (assets - debts). Though of as 'return on net assets'. Want target ROE equal/above
+    # net income / shareholder's equity (assets - debts). Thought of as 'return on net assets'. Want target ROE equal/above
     # average of peers
     return_on_equity = round((get_net_income(stock) / response_json['balancesheet'][0]['shareholderEquity']*100), 2)
     print("Return on Equity: %", return_on_equity)
@@ -89,11 +90,11 @@ def get_stats(stock):
     # current price / book value per share
     book_value_per_share = round(response_json['balancesheet'][0]['shareholderEquity'] / \
                            response_json['balancesheet'][0]['commonStock'], 2)
+    print(book_value_per_share)
     print("Book Value per Share: ", book_value_per_share)
     response_pe = requests.get(test_base_url + stock + '/quote' + test_token)
     response_pe_json = json.loads(response_pe.text)
     current_price = response_pe_json['close']
-
     price_to_book = round(current_price / book_value_per_share, 2)
     print("Price to book Ratio: ", price_to_book)
 
@@ -107,4 +108,4 @@ def get_stats(stock):
     #PEG_ratio = response_json['pegRatio']
 
 
-
+## get_stats('AAPL') -> Works, but api returns 'NoneType' for 'close' values in response for unpaid subscribers
