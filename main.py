@@ -11,7 +11,7 @@ token = "?token=pk_44bd5242c4ab4595b33dafa82c61ba1c"
 test_token = "?token=Tpk_b0410fc3685c4561980063dfcb5279a7"
 
 def get_response(stock, url_string):
-    response = requests.get(test_base_url + stock + url_string + test_token)
+    response = requests.get(base_url + stock + url_string + token)
     response_json = json.loads(response.text)
     return response_json
 
@@ -27,7 +27,6 @@ class Stock_shot:
     # Returns list of tickers of similar companies (note changes in response)
     def get_peers(self, stock):
         response_json = get_response(stock, '/peers')
-        print(response_json)
         return response_json
 
     # Returns company name, exchange listed, and industry
@@ -40,17 +39,16 @@ class Stock_shot:
 
 def search_stock():
     stock_string = input("Enter a company's stock ticker (ex. apple = aapl): ").upper()
-    stock_lst = stock_string.replace(",", " ").split()
+    stock_lst = stock_string.replace(" ", "").split()
     print(stock_lst)
     for stock in stock_lst:
         single_stock = Stock_shot(stock)
         single_stock.get_quote(stock)
-        #single_stock.get_peers(stock)
         single_stock.get_name(stock)
-   # peers = requests.get(base_url + stock_string + '/peers' + token)
-   # peers_json = json.loads(peers.text)
-    stock_plus_peers = stock_lst #+ peers_json
-    print(stock_plus_peers)
-    get_chart_info(stock_plus_peers)
+   # peers = Stock_shot(stock_string).get_peers(stock_string)
+    #stock_plus_peers = stock_lst + peers
+    #print(stock_plus_peers)
+   # get_chart_info(stock_plus_peers)
+    get_chart_info(stock_lst)
 
 search_stock()

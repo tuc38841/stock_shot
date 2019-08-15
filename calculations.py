@@ -1,18 +1,63 @@
 import datetime
 import requests
 import json
+import numpy as np
+from matplotlib import pyplot as plt
+#import seaborn as sns
+
+#from charts import companies
+
 #from iexToken import token   ---> to hide token from public view
 #from iexToken import base_url
 
-from requests import Response
 
 base_url = "https://cloud.iexapis.com/stable/stock/"
 test_base_url = "https://sandbox.iexapis.com/stable/stock/"
 token = "?token=pk_44bd5242c4ab4595b33dafa82c61ba1c"
 test_token = "?token=Tpk_b0410fc3685c4561980063dfcb5279a7"
 
+#CREATE GRAPHS AND SCALES TO COMPARE VALUES FOR USER TO VISUALLY REPRESENT STATS AND SEE PERFORMANCE
+    #EX. add highlighted ranges to show which stats are in good range and which are not
+#From get_stats
+current_prices = [200, 215]
+current_ratios = []
+debt_to_equities = []
+return_on_equities = []
+book_values_per_shares = []
+price_targets_lows = [180, 200]
+price_targets_highs = [220, 240]
+price_targets_avg = []
+
+companies = ['aapl', 'tsla']
+#Chart current values with low, avg, high values for comparison
+
+def chart_high_lows():
+    high_minus_low = []
+    for value in range(len(price_targets_highs)):
+        high_minus_low.append(price_targets_highs[value] - price_targets_lows[value])
+
+    ax = plt.subplot()
+    ax.bar(np.arange(len(companies)), current_prices, yerr=high_minus_low, align='center', alpha=0.5,
+           ecolor='black', capsize=5)
+    ax.set_ylabel('Stock Price')
+    ax.set_xticks(np.arange(len(companies)))
+    ax.set_xticklabels(companies)
+    ax.set_title('Current Prices with High and Low Targets')
+    plt.show()
+
+chart_high_lows()
+
+#From Advanced Stats
+profit_margins = []
+price_to_books = []
+price_to_sales = []
+EPS_list = []
+PE_ratios = []
+PEG_ratios = []
+
+# use a scale graph to compare profit margins, price to book, price to sales, pe ratios and peg ratios
 def get_response(stock, url_string):
-    response = requests.get(test_base_url + stock + url_string + test_token)
+    response = requests.get(base_url + stock + url_string + token)
     response_json = json.loads(response.text)
     return response_json
 
@@ -28,19 +73,25 @@ def get_price_target(stock):
     low_target = response_json['priceTargetLow']
     high_target = response_json['priceTargetHigh']
     average_target = response_json['priceTargetAverage']
+
+    # APPEND TO LIST
+    price_targets_lows.append(low_target)
+    price_targets_highs.append(high_target)
+    price_targets_avg.append(average_target)
     print("Analyst Targets:\n\tLow: {}\n\tHigh: {}\n\tAverage: {}\n\n".format(low_target, high_target, average_target))
 
 #Gets PE Ratio
 def get_pe_ratio(stock):
     response_json = get_response(stock, '/quote')
     close_value = float(int(response_json['close']))
-    #print(close_value)
+    current_prices.append(close_value)
 
-    response = requests.get(test_base_url + stock + '/stats/ttmEPS' + test_token)
+    response = requests.get(base_url + stock + '/stats/ttmEPS' + token)
     actual_EPS = json.loads(response.text)
-    #print(actual_EPS)
+    EPS_list.append(actual_EPS)
 
     PE_ratio = round((close_value / actual_EPS), 2)
+    PE_ratios.append(PE_ratio)
     print("PE Ratio (TTM): {}".format(PE_ratio))
 
 #Defaults to quaterly financial data
@@ -56,9 +107,31 @@ def get_net_income(stock):
     return net_income
     print(net_income)
 
+def get_advanced_stats(stock):
+    response_json = get_response(stock, '/advanced-stats')
+    profit_margin = response_json['profitMargin']
+    price_to_sale = response_json['priceToSales']
 
-#Advanced stats -> Balance sheet
+    # Price to Book - Market price / book value. A lower value = undervalued or fundamentally troubled (depends on industry)
+    # < 1 = potentially undervalued, > 1 = possibly overvalued, < 3 can be used as benchmark
+    price_to_book = response_json['priceToBook']
+
+    # degree to which company is financing operations through debt (ability of shareholder equity to cover outstanding debt)
+    # Scale : Dependent on industry. Some companies utilize debt for financing more than others (utilities > tech)
+    debt_to_equity = response_json['debtToEquity']
+
+    PEG_ratio = response_json['pegRatio']
+
+    profit_margins.append(profit_margin)
+    price_to_books.append(price_to_book)
+    price_to_sales.append(price_to_sale)
+    PEG_ratios.append(PEG_ratio)
+    debt_to_equities.append(debt_to_equity)
+
+# From Balance Sheet
 def get_stats(stock):
+    get_financials()
+
     response_json = get_response(stock, '/balance-sheet')
     get_company(stock)
     get_financials(stock)
@@ -69,43 +142,30 @@ def get_stats(stock):
     # Goal: 1.5 to 3.0. Below 1 = indicates liquidity problems, over 3 = not utilizing assets efficiently
     current_ratio = round(response_json['balancesheet'][0]['currentAssets'] /
                           response_json['balancesheet'][0]['totalCurrentLiabilities'], 2)
-    print("Current ratio: ", current_ratio)
 
-    # D/E
-    # degree to which company is financing operations through debt (ability of shareholder equity to cover outstanding debt)
-    # Scale : Dependent on industry. Some companies utilize debt for financing more than others (utilities > tech)
-    debt_to_equity = round(response_json['balancesheet'][0]['longTermDebt'] /
-                           response_json['balancesheet'][0]['shareholderEquity'], 2)
-    print("Debt to Equity Ratio: ", debt_to_equity)
+    current_ratios.append(current_ratio) #APPEND TO LIST
+    print("Current ratio: ", current_ratio)
 
     # Return on Equity
     # net income / shareholder's equity (assets - debts). Thought of as 'return on net assets'. Want target ROE equal/above
     # average of peers
     return_on_equity = round((get_net_income(stock) / response_json['balancesheet'][0]['shareholderEquity']*100), 2)
+
+    return_on_equities.append(return_on_equity) #APPEND TO LIST
     print("Return on Equity: %", return_on_equity)
 
-    # Price to Book
-    # Market price / book value. A lower value = undervalued or fundamentally troubled (depends on industry)
-    # < 1 = potentially undervalued, > 1 = possibly overvalued, < 3 can be used as benchmark
     # current price / book value per share
     book_value_per_share = round(response_json['balancesheet'][0]['shareholderEquity'] / \
                            response_json['balancesheet'][0]['commonStock'], 2)
+
+    book_values_per_shares.append(book_value_per_share) #APPEND TO LIST
     print(book_value_per_share)
     print("Book Value per Share: ", book_value_per_share)
-    response_pe = requests.get(test_base_url + stock + '/quote' + test_token)
-    response_pe_json = json.loads(response_pe.text)
-    current_price = response_pe_json['close']
-    price_to_book = round(current_price / book_value_per_share, 2)
-    print("Price to book Ratio: ", price_to_book)
 
     get_price_target(stock)
 
-    #profit_margin = response_json['profitMargin']
-    #price_to_sales = response_json['priceToSales']
 
-    #earnings growth rate = current EPS / previous EPS (use annual data)
-    #PE_ratio = get_pe_ratio(stock)
-    #PEG_ratio = response_json['pegRatio']
-
-
-## get_stats('AAPL') -> Works, but api returns 'NoneType' for 'close' values in response for unpaid subscribers
+#get_stats('AAPL') #-> WORKING
+#get_advanced_stats('AAPL') - WORKING
+#print(current_prices, current_ratios, debt_to_equities, return_on_equities, book_values_per_shares, price_to_books, price_targets_lows,
+#      price_targets_highs, price_targets_avg, profit_margins, price_to_sales, EPS_list, PE_ratios, PEG_ratios) # WORKING

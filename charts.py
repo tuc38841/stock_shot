@@ -93,7 +93,7 @@ def get_chart_info(stocks):
     for stock in stock_lst_for_legend:
         companies.append(stock)
         try:
-            response = requests.get(test_base_url + stock + '/chart/' + chart_range + test_token)
+            response = requests.get(base_url + stock + '/chart/' + chart_range + token)
             response_json = json.loads(response.text)
 
             year_mon_day = [i['date'] for i in response_json]
@@ -193,5 +193,3 @@ def get_chart(chart_range):
         ax.set_xticklabels(get_month_labels(months_labels[index])[::6])
         ax.legend(companies)
         plt.show()
-        ## chart max if error (from not having enough data - causing error) -> put in try block (if failure,
-        # then user input is out of range of existing data
