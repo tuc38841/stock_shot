@@ -37,6 +37,7 @@ class Stock_shot:
         industry = response_json['industry']
         print(company_name, exchange, industry)
 
+#def get_companies(stock_plus_peers):
 def search_stock():
     stock_string = input("Enter a company's stock ticker (ex. apple = aapl): ").upper()
     stock_lst = stock_string.replace(" ", "").split()
@@ -45,10 +46,10 @@ def search_stock():
         single_stock = Stock_shot(stock)
         single_stock.get_quote(stock)
         single_stock.get_name(stock)
-   # peers = Stock_shot(stock_string).get_peers(stock_string)
-    #stock_plus_peers = stock_lst + peers
-    #print(stock_plus_peers)
-   # get_chart_info(stock_plus_peers)
+    peers = Stock_shot(stock_string).get_peers(stock_string)
+    stock_plus_peers = stock_lst + peers
+    print(stock_plus_peers)
+    get_chart_info(stock_plus_peers)
     get_chart_info(stock_lst)
 
 search_stock()

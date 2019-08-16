@@ -6,6 +6,9 @@ import datetime
 import requests
 import json
 from calculations import get_stats
+from calculations import run_stats
+import calculations
+from calculations import chart_high_lows
 
 base_url = "https://cloud.iexapis.com/stable/stock/"
 test_base_url = "https://sandbox.iexapis.com/stable/stock/"
@@ -86,8 +89,6 @@ def get_input():
 # Returns historical price information based on user inputted date range
 def get_chart_info(stocks):
     chart_range = get_input()
-        #input("Would you like to see 1m, 3m, 6m, ytd, 1y, 2y, or 5y of data?:  ")
-
     stock_lst_for_legend = stocks
 
     for stock in stock_lst_for_legend:
@@ -121,11 +122,10 @@ def get_chart_info(stocks):
             print(e)
             print("Make sure to enter values exactly as stated in question (no spaces).")
 
-        #get_stats(stock) -> now only for paid subscribers
+        #get_stats(stock)
 
     get_chart(chart_range)
-
-## NEED WAY TO CAP FOR COMPANIES MISSING DATA (EX. square under 5 years data) -> If not enough data, then use max?? ##
+    run_stats(companies) #-> USE THIS TO TRANSFER COMPANIES INTO CALCULATIONS
 
 def get_chart(chart_range):
     try:

@@ -3,35 +3,26 @@ import requests
 import json
 import numpy as np
 from matplotlib import pyplot as plt
-#import seaborn as sns
-
-#from charts import companies
+import seaborn as sns
 
 #from iexToken import token   ---> to hide token from public view
 #from iexToken import base_url
-
-
 base_url = "https://cloud.iexapis.com/stable/stock/"
 test_base_url = "https://sandbox.iexapis.com/stable/stock/"
 token = "?token=pk_44bd5242c4ab4595b33dafa82c61ba1c"
 test_token = "?token=Tpk_b0410fc3685c4561980063dfcb5279a7"
 
-#CREATE GRAPHS AND SCALES TO COMPARE VALUES FOR USER TO VISUALLY REPRESENT STATS AND SEE PERFORMANCE
-    #EX. add highlighted ranges to show which stats are in good range and which are not
 #From get_stats
-current_prices = [200, 215]
+current_prices = []
 current_ratios = []
 debt_to_equities = []
 return_on_equities = []
 book_values_per_shares = []
-price_targets_lows = [180, 200]
-price_targets_highs = [220, 240]
+price_targets_lows = []
+price_targets_highs = []
 price_targets_avg = []
 
-companies = ['aapl', 'tsla']
-#Chart current values with low, avg, high values for comparison
-
-def chart_high_lows():
+def chart_high_lows(companies): # takes in list of stocks
     high_minus_low = []
     for value in range(len(price_targets_highs)):
         high_minus_low.append(price_targets_highs[value] - price_targets_lows[value])
@@ -43,9 +34,8 @@ def chart_high_lows():
     ax.set_xticks(np.arange(len(companies)))
     ax.set_xticklabels(companies)
     ax.set_title('Current Prices with High and Low Targets')
+    #plt.scatter(np.arange(len(book_values_per_shares)), book_values_per_shares)
     plt.show()
-
-chart_high_lows()
 
 #From Advanced Stats
 profit_margins = []
@@ -55,7 +45,11 @@ EPS_list = []
 PE_ratios = []
 PEG_ratios = []
 
-# use a scale graph to compare profit margins, price to book, price to sales, pe ratios and peg ratios
+#IDEAS FOR STATS
+# 1) use a scale graph to compare profit margins, price to book, price to sales, pe ratios and peg ratios
+# 2) #CREATE GRAPHS AND SCALES TO COMPARE VALUES FOR USER TO VISUALLY REPRESENT STATS AND SEE PERFORMANCE
+     #EX. add highlighted ranges to show which stats are in good range and which are not
+
 def get_response(stock, url_string):
     response = requests.get(base_url + stock + url_string + token)
     response_json = json.loads(response.text)
@@ -83,14 +77,14 @@ def get_price_target(stock):
 #Gets PE Ratio
 def get_pe_ratio(stock):
     response_json = get_response(stock, '/quote')
-    close_value = float(int(response_json['close']))
-    current_prices.append(close_value)
+    latest_price = response_json['latestPrice']
+    current_prices.append(latest_price)
 
     response = requests.get(base_url + stock + '/stats/ttmEPS' + token)
     actual_EPS = json.loads(response.text)
     EPS_list.append(actual_EPS)
 
-    PE_ratio = round((close_value / actual_EPS), 2)
+    PE_ratio = round((latest_price / actual_EPS), 2)
     PE_ratios.append(PE_ratio)
     print("PE Ratio (TTM): {}".format(PE_ratio))
 
@@ -130,7 +124,7 @@ def get_advanced_stats(stock):
 
 # From Balance Sheet
 def get_stats(stock):
-    get_financials()
+    get_financials(stock)
 
     response_json = get_response(stock, '/balance-sheet')
     get_company(stock)
@@ -155,17 +149,17 @@ def get_stats(stock):
     print("Return on Equity: %", return_on_equity)
 
     # current price / book value per share
-    book_value_per_share = round(response_json['balancesheet'][0]['shareholderEquity'] / \
-                           response_json['balancesheet'][0]['commonStock'], 2)
+    book_value_per_share = round(response_json['balancesheet'][0]['shareholderEquity'] / response_json['balancesheet'][0]['commonStock'], 2)
 
     book_values_per_shares.append(book_value_per_share) #APPEND TO LIST
     print(book_value_per_share)
     print("Book Value per Share: ", book_value_per_share)
 
     get_price_target(stock)
+    get_advanced_stats(stock)
 
-
-#get_stats('AAPL') #-> WORKING
-#get_advanced_stats('AAPL') - WORKING
-#print(current_prices, current_ratios, debt_to_equities, return_on_equities, book_values_per_shares, price_to_books, price_targets_lows,
-#      price_targets_highs, price_targets_avg, profit_margins, price_to_sales, EPS_list, PE_ratios, PEG_ratios) # WORKING
+def run_stats(companies):
+    for company in companies:
+        get_stats(company)
+        get_advanced_stats(company)
+    chart_high_lows(companies)
