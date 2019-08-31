@@ -1,9 +1,9 @@
-import datetime
+
 import requests
 import json
 import numpy as np
 from matplotlib import pyplot as plt
-import seaborn as sns
+
 
 #from iexToken import token   ---> to hide token from public view
 #from iexToken import base_url
@@ -36,6 +36,18 @@ def chart_high_lows(companies): # takes in list of stocks
     ax.set_title('Current Prices with High and Low Targets')
     #plt.scatter(np.arange(len(book_values_per_shares)), book_values_per_shares)
     plt.show()
+
+def chart_PE_ratios(companies):
+    avg_pe = sum(PE_ratios) / len(companies)
+    ax = plt.subplot()
+    ax.scatter(np.arange(len(companies)), PE_ratios)
+    ax.set_ylabel('PE Ratios')
+    ax.set_xticks(np.arange(len(companies)))
+    ax.set_xticklabels(companies)
+    ax.set_title('PE Ratios with Average of All Companies')
+    plt.axhline(y=avg_pe, color='r')
+    plt.show()
+
 
 #From Advanced Stats
 profit_margins = []
@@ -163,3 +175,4 @@ def run_stats(companies):
         get_stats(company)
         get_advanced_stats(company)
     chart_high_lows(companies)
+    chart_PE_ratios(companies)
