@@ -3,13 +3,13 @@ import requests
 import json
 import numpy as np
 from matplotlib import pyplot as plt
-
+import os
 
 #from iexToken import token   ---> to hide token from public view
 #from iexToken import base_url
 base_url = "https://cloud.iexapis.com/stable/stock/"
 test_base_url = "https://sandbox.iexapis.com/stable/stock/"
-token = "?token=pk_44bd5242c4ab4595b33dafa82c61ba1c"
+token = os.environ.get('IEX_PUBLIC_KEY')
 test_token = "?token=Tpk_b0410fc3685c4561980063dfcb5279a7"
 
 #From get_stats
@@ -37,17 +37,16 @@ def chart_high_lows(companies): # takes in list of stocks
     #plt.scatter(np.arange(len(book_values_per_shares)), book_values_per_shares)
     plt.show()
 
-def chart_PE_ratios(companies):
-    avg_pe = sum(PE_ratios) / len(companies)
+def chart_PE_ratios(companies): #scatter of all pes with line representing average
+    avg_pe = sum(PE_ratios)
     ax = plt.subplot()
     ax.scatter(np.arange(len(companies)), PE_ratios)
     ax.set_ylabel('PE Ratios')
     ax.set_xticks(np.arange(len(companies)))
     ax.set_xticklabels(companies)
     ax.set_title('PE Ratios with Average of All Companies')
-    plt.axhline(y=avg_pe, color='r')
     plt.show()
-
+    plt.axhline(y=avg_pe, color='r')
 
 #From Advanced Stats
 profit_margins = []
@@ -175,4 +174,3 @@ def run_stats(companies):
         get_stats(company)
         get_advanced_stats(company)
     chart_high_lows(companies)
-    chart_PE_ratios(companies)

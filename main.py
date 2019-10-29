@@ -1,13 +1,13 @@
 #“Data provided by IEX Cloud”
 #<a href="https://iexcloud.io">Data provided by IEX Cloud</a>
-
+import os
 import requests
 import json
 from charts import get_chart_info
 
 base_url = "https://cloud.iexapis.com/stable/stock/"
 test_base_url = "https://sandbox.iexapis.com/stable/stock/"
-token = "?token=pk_44bd5242c4ab4595b33dafa82c61ba1c"
+token = os.environ.get('IEX_PUBLIC_KEY')
 test_token = "?token=Tpk_b0410fc3685c4561980063dfcb5279a7"
 
 def get_response(stock, url_string):
@@ -46,10 +46,14 @@ def search_stock():
         single_stock = Stock_shot(stock)
         single_stock.get_quote(stock)
         single_stock.get_name(stock)
-    peers = Stock_shot(stock_string).get_peers(stock_string)
-    stock_plus_peers = stock_lst + peers
-    print(stock_plus_peers)
-    get_chart_info(stock_plus_peers)
-    get_chart_info(stock_lst)
+    competitors = input("Do you want competitors' data?: y or n")
+    if competitors == 'y':
+        peers = Stock_shot(stock_string).get_peers(stock_string)
+        stock_plus_peers = stock_lst + peers
+        print(stock_plus_peers)
+        get_chart_info(stock_plus_peers)
+        #get_chart_info(stock_lst)
+    else:
+        get_chart_info(stock_lst)
 
 search_stock()

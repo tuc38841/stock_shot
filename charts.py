@@ -1,6 +1,6 @@
 #“Data provided by IEX Cloud”
 #<a href="https://iexcloud.io">Data provided by IEX Cloud</a>
-
+import os
 from matplotlib import pyplot as plt
 import datetime
 import requests
@@ -12,7 +12,7 @@ from calculations import chart_high_lows
 
 base_url = "https://cloud.iexapis.com/stable/stock/"
 test_base_url = "https://sandbox.iexapis.com/stable/stock/"
-token = "?token=pk_44bd5242c4ab4595b33dafa82c61ba1c"
+token = os.environ.get('IEX_PUBLIC_KEY')
 test_token = "?token=Tpk_b0410fc3685c4561980063dfcb5279a7"
 
 
